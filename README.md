@@ -1,105 +1,45 @@
-# Web Bán Máy Tính — PHP MVC
+# Web Bán Máy Tính
 
-Website thương mại điện tử bán máy tính, xây dựng bằng PHP thuần theo mô hình MVC.
+Website bán hàng máy tính trực tuyến sử dụng PHP thuần + MySQL theo mô hình MVC.
 
-------------------------------------------
+## Công nghệ
 
-## Công nghệ sử dụng
+- PHP >= 8.1
+- MySQL
+- HTML, CSS, JavaScript, Bootstrap 5
+- Composer
+- Git + GitHub
+- XAMPP
 
-| Thành phần | Công nghệ |
-|---|---|
-| Backend | PHP >= 8.1 |
-| Database | MySQL |
-| Frontend | HTML, CSS, JavaScript, Bootstrap 5 |
-| Thư viện | Composer |
-| Môi trường | XAMPP |
+## Cách chạy project
 
-------------------------------------------
+1. Clone repo vào thư mục `htdocs`: `git clone https://github.com/cheesa2201/webbanhang.git`
+2. Di chuyển vào thư mục dự án: `cd web_ban_hang_may_tinh`
+3. Cài thư viện: `composer install`
+4. Mở XAMPP, chạy Apache và MySQL
+5. Tạo database tên `web_may_tinh`, import file `database_new.sql`
+6. Kiểm tra cấu hình trong `config/database.php`
+7. Truy cập `http://localhost/web_ban_hang_may_tinh/user/index.php`
 
-## Cấu trúc thư mục
+## Cấu trúc chính
 
-------------------------------------------
-web_ban_hang_may_tinh/
-├── admin/          # Giao diện & logic trang quản trị
-├── user/           # Giao diện khách hàng
-├── controllers/    # Điều phối logic giữa Model và View
-├── models/         # Truy vấn cơ sở dữ liệu
-├── includes/       # Header, Footer, Navbar dùng chung
-├── config/
-│   └── database.php
-├── assets/         # CSS, JS, Hình ảnh
-├── vendor/         # Thư viện Composer (không commit)
-└── database_new.sql
-```
-
-------------------------------------------
-
-## Cài đặt
-
-**Yêu cầu:** Đã cài XAMPP và Composer.
-
-**Bước 1 — Clone repo** vào thư mục `htdocs`:
-
-```bash
-git clone https://github.com/cheesa2201/webbanhang.git
-cd web_ban_hang_may_tinh
-```
-
-**Bước 2 — Cài thư viện:**
-
-```bash
-composer install
-```
-
-**Bước 3 — Tạo database:**
-
-- Truy cập `http://localhost/phpmyadmin/`
-- Tạo database tên `web_may_tinh`
-- Import file `database_new.sql`
-
-**Bước 4 — Cấu hình kết nối** trong `config/database.php`:
-
-```php
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'web_may_tinh');
-define('DB_USER', 'root');
-define('DB_PASS', '');  
-```
-
-**Bước 5 — Truy cập:**
-
-| | URL |
-|---|---|
-| Trang khách hàng | `http://localhost/web_ban_hang_may_tinh/user/index.php` |
-| Trang quản trị | `http://localhost/web_ban_hang_may_tinh/admin/index.php` |
-
-------------------------------------------
+- `admin/` : Giao diện và xử lý trang quản trị
+- `user/` : Giao diện khách hàng
+- `controllers/` : Xử lý logic
+- `models/` : Truy vấn database
+- `config/` : Cấu hình hệ thống
+- `assets/` : CSS, JS, hình ảnh
+- `vendor/` : Thư viện Composer (không commit)
 
 ## Quy trình làm việc nhóm
 
-**1. Cập nhật code mới nhất:**
+1. Cập nhật code mới nhất: `git checkout develop` → `git pull origin develop`
+2. Tạo nhánh riêng: `git checkout -b feature/ten-tinh-nang`
+3. Sau khi xong: `git add .` → `git commit -m "mô tả"` → `git push origin feature/ten-tinh-nang`
+4. Tạo Pull Request trên GitHub để Leader review và merge vào `develop`
 
-```bash
-git checkout develop
-git pull origin develop
-```
+## Thành viên
 
-**2. Tạo nhánh riêng để làm việc:**
-
-```bash
-git checkout -b feature/ten-tinh-nang
-
-```
-
-**3. Commit và push:**
-
-```bash
-git add .
-git commit -m "mô tả công việc đã làm"
-git push origin feature/ten-tinh-nang
-```
-
-**4.** Vào GitHub tạo **Pull Request** để Leader review và merge vào nhánh `develop`.
-
-
-
+| Họ tên | Vai trò |
+|---|---|
+| | |
