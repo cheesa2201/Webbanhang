@@ -1,7 +1,5 @@
 <?php
-
 require_once __DIR__ . '/auth.php';
-
 
 //Kiểm tra có phải admin không
 function isAdmin(): bool
@@ -11,9 +9,7 @@ function isAdmin(): bool
     }
 
     $ten_vai_tro = strtolower(trim($_SESSION['ten_vai_tro'] ?? ''));
-
     $admin_roles = ['admin', 'quan_tri', 'superadmin'];
-
     return in_array($ten_vai_tro, $admin_roles, true);
 }
 

@@ -1,5 +1,4 @@
 <?php
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -23,7 +22,6 @@ function requireLogin(string $login_url = '/login.php'): void
     }
 }
 
-
 //Lấy user hiện tại
 function getCurrentUser(): ?array
 {
@@ -45,7 +43,6 @@ function getCurrentUser(): ?array
 function createLoginSession(array $nguoi_dung): void
 {
     session_regenerate_id(true);
-
     $_SESSION['id_nguoi_dung'] = $nguoi_dung['id_nguoi_dung'];
     $_SESSION['id_vai_tro'] = $nguoi_dung['id_vai_tro'];
     $_SESSION['ten_vai_tro'] = strtolower($nguoi_dung['ten_vai_tro'] ?? '');
@@ -54,7 +51,6 @@ function createLoginSession(array $nguoi_dung): void
     $_SESSION['so_dien_thoai'] = $nguoi_dung['so_dien_thoai'] ?? null;
     $_SESSION['trang_thai'] = $nguoi_dung['trang_thai'];
 }
-
 
 //Logout
 function logout(string $redirect = '/login.php'): void
