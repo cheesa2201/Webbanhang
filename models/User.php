@@ -6,90 +6,91 @@ class User {
     public function __construct($db) {
         $this->conn = $db;
     }
-    // Tìm user theo email
+
     public function findByEmail($email) {
+        if (empty($email)) return null;
+        
         $sql = "SELECT * FROM {$this->table} WHERE email = :email LIMIT 1";
         $stmt = $this->conn->prepare($sql);
-
         $email = trim($email);
         $stmt->bindParam(":email", $email);
-
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // Tìm user theo ID
     public function findById($id) {
+        if (empty($id)) return null;
+        
         $sql = "SELECT * FROM {$this->table} WHERE id_nguoi_dung = :id LIMIT 1";
         $stmt = $this->conn->prepare($sql);
-
-        $stmt->bindParam(":id", $id);
-
+        $stmt->bindParam(":id", $id, PDO::PARAM_INT); // Ép kiểu INT
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // Kiểm tra email tồn tại
     public function existsByEmail($email) {
+        if (empty($email)) return false;
+        
         $sql = "SELECT COUNT(*) as count FROM {$this->table} WHERE email = :email";
         $stmt = $this->conn->prepare($sql);
-
         $email = trim($email);
         $stmt->bindParam(":email", $email);
-
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return isset($row['count']) && $row['count'] > 0;
+        return (bool) $row['count']; // Clean hơn
     }
 
-    // Tạo user mới (đăng ký)
     public function create($data) {
+        // Validation cơ bản
+        $required = ['ho_ten', 'email', 'so_dien_thoai', 'mat_khau', 'id_vai_tro'];
+        foreach ($required as $field) {
+            if (empty(trim($data[$field] ?? ''))) {
+                return [
+                    "success" => false,
+                    "message" => "Trường $field không được để trống"
+                ];
+            }
+        }
 
-        // Check email trùng
         if ($this->existsByEmail($data['email'])) {
-            return [
-                "success" => false,
-                "message" => "Email đã tồn tại"
-            ];
+            return ["success" => false, "message" => "Email đã tồn tại"];
         }
 
         $sql = "INSERT INTO {$this->table} 
             (id_vai_tro, ho_ten, email, so_dien_thoai, mat_khau, dia_chi)
-            VALUES
-            (:id_vai_tro, :ho_ten, :email, :so_dien_thoai, :mat_khau, :dia_chi)";
+            VALUES (:id_vai_tro, :ho_ten, :email, :so_dien_thoai, :mat_khau, :dia_chi)";
 
         $stmt = $this->conn->prepare($sql);
+        $hashedPassword = password_hash($data['mat_khau'], PASSWORD_DEFAULT); // PASSWORD_DEFAULT linh hoạt hơn
 
-        // Hash password
-        $hashedPassword = password_hash($data['mat_khau'], PASSWORD_BCRYPT);
+        // Trim tất cả
+        $params = [
+            'id_vai_tro' => $data['id_vai_tro'],
+            'ho_ten' => trim($data['ho_ten']),
+            'email' => trim($data['email']),
+            'so_dien_thoai' => trim($data['so_dien_thoai']),
+            'dia_chi' => trim($data['dia_chi'] ?? '')
+        ];
 
-        // Trim dữ liệu
-        $ho_ten = trim($data['ho_ten']);
-        $email = trim($data['email']);
-        $so_dien_thoai = trim($data['so_dien_thoai']);
-        $dia_chi = trim($data['dia_chi']);
-
-        $stmt->bindParam(":id_vai_tro", $data['id_vai_tro']);
-        $stmt->bindParam(":ho_ten", $ho_ten);
-        $stmt->bindParam(":email", $email);
-        $stmt->bindParam(":so_dien_thoai", $so_dien_thoai);
+        // Bind params gọn hơn
+        foreach ($params as $key => $value) {
+            $stmt->bindParam(":$key", $params[$key]);
+        }
         $stmt->bindParam(":mat_khau", $hashedPassword);
-        $stmt->bindParam(":dia_chi", $dia_chi);
 
-        // Execute + xử lý lỗi
         if ($stmt->execute()) {
             return [
                 "success" => true,
-                "message" => "Tạo user thành công"
-            ];
-        } else {
-            return [
-                "success" => false,
-                "message" => "Lỗi khi tạo user",
-                "error" => $stmt->errorInfo()
+                "message" => "Tạo user thành công",
+                "id" => $this->conn->lastInsertId() // Trả về ID user mới
             ];
         }
+        
+        return [
+            "success" => false,
+            "message" => "Lỗi khi tạo user",
+            "error" => $stmt->errorInfo()[2] ?? 'Unknown error' // Chỉ lấy message
+        ];
     }
 }
 ?>
