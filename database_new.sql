@@ -1,4 +1,4 @@
-use web_ban_hang;
+use webbanhang;
 
 CREATE TABLE vai_tro (
     id_vai_tro INT AUTO_INCREMENT PRIMARY KEY,
