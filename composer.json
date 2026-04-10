@@ -1,0 +1,14 @@
+{
+    "name": "team/web-may-tinh",
+    "description": "Du an web ban may tinh PHP MVC",
+    "type": "project",
+    "require": {
+        "symfony/http-foundation": "^6.0"
+    },
+    "autoload": {
+        "classmap": [
+            "models/",
+            "controllers/"
+        ]
+    }
+}
