@@ -23,7 +23,7 @@ class User {
         
         $sql = "SELECT * FROM {$this->table} WHERE id_nguoi_dung = :id LIMIT 1";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(":id", $id, PDO::PARAM_INT); // Ép kiểu INT
+        $stmt->bindParam(":id", $id, PDO::PARAM_INT); 
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -37,11 +37,10 @@ class User {
         $stmt->bindParam(":email", $email);
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return (bool) $row['count']; // Clean hơn
+        return (bool) $row['count']; 
     }
 
     public function create($data) {
-        // Validation cơ bản
         $required = ['ho_ten', 'email', 'so_dien_thoai', 'mat_khau', 'id_vai_tro'];
         foreach ($required as $field) {
             if (empty(trim($data[$field] ?? ''))) {
@@ -61,9 +60,8 @@ class User {
             VALUES (:id_vai_tro, :ho_ten, :email, :so_dien_thoai, :mat_khau, :dia_chi)";
 
         $stmt = $this->conn->prepare($sql);
-        $hashedPassword = password_hash($data['mat_khau'], PASSWORD_DEFAULT); // PASSWORD_DEFAULT linh hoạt hơn
+        $hashedPassword = password_hash($data['mat_khau'], PASSWORD_DEFAULT); 
 
-        // Trim tất cả
         $params = [
             'id_vai_tro' => $data['id_vai_tro'],
             'ho_ten' => trim($data['ho_ten']),
@@ -72,7 +70,6 @@ class User {
             'dia_chi' => trim($data['dia_chi'] ?? '')
         ];
 
-        // Bind params gọn hơn
         foreach ($params as $key => $value) {
             $stmt->bindParam(":$key", $params[$key]);
         }
@@ -82,14 +79,14 @@ class User {
             return [
                 "success" => true,
                 "message" => "Tạo user thành công",
-                "id" => $this->conn->lastInsertId() // Trả về ID user mới
+                "id" => $this->conn->lastInsertId() 
             ];
         }
         
         return [
             "success" => false,
             "message" => "Lỗi khi tạo user",
-            "error" => $stmt->errorInfo()[2] ?? 'Unknown error' // Chỉ lấy message
+            "error" => $stmt->errorInfo()[2] ?? 'Unknown error'
         ];
     }
 }
