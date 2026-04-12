@@ -1,7 +1,10 @@
 <?php
-require_once 'config/database.php';
+session_destroy();
+header('Location: user/login.php');
+exit;
+require_once 'includes/bootstrap.php';
+require_once 'includes/auth.php';
 
-$db = new Database();
-$conn = $db->connect();
-
-echo "Kết nối thành công!";
+echo '<pre>';
+print_r($_SESSION);
+echo '</pre>';
