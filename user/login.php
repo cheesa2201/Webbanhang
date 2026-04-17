@@ -18,7 +18,7 @@ if (is_post()) {
 <?php 
 $page_title = 'Đăng nhập - TechShop';
 $page_desc = 'Đăng nhập để tiếp tục mua sắm';
-require_once __DIR__ . '/../includes/header.php'; 
+require_once __DIR__ . '/../includes/auth_header.php';
 ?>
 
 <div class="card card-custom bg-white">
@@ -102,4 +102,4 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/auth_footer.php'; ?>

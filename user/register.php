@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/User.php';
 
@@ -26,8 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif (strlen($mat_khau) < 6) {
         $error_message = "Mật khẩu phải có ít nhất 6 ký tự.";
     } else {
-        $database = new Database();
-        $db = $database->getConnection();
+        $db = db_connect();
         
         if ($db) {
             $userModel = new User($db);
