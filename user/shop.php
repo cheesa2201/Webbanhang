@@ -192,7 +192,16 @@ include '../includes/header.php';
 
     <div class="category-row mb-5">
         <?php
-            $navCategories = require __DIR__ . '/../includes/category_buttons.php';
+            $navCategories = [
+                    ['id' => 1, 'name' => 'Điện thoại', 'icon' => '📱'],
+                    ['id' => 2, 'name' => 'Laptop', 'icon' => '💻'],
+                    ['id' => 3, 'name' => 'Máy tính bảng', 'icon' => '📟'],
+                    ['id' => 4, 'name' => 'Tai nghe', 'icon' => '🎧'],
+                    ['id' => 5, 'name' => 'Màn hình', 'icon' => '🖥️'],
+                    ['id' => 6, 'name' => 'Đồng hồ thông minh', 'icon' => '⌚'],
+                    ['id' => 7, 'name' => 'Phụ kiện', 'icon' => '🔌'],
+            ];
+            
             foreach ($navCategories as $category) {
                 $categoryUrl = 'shop.php?category=' . urlencode($category['id']);
                 $activeClass = $selectedCategoryId === (int)$category['id'] ? ' border-primary shadow-sm' : '';
@@ -236,34 +245,51 @@ include '../includes/header.php';
 
             if($stmt->rowCount() > 0) {
                 $hasProducts = true;
+                // Load danh sách favorite để kiểm tra icon
+                $fav_ids = [];
+                if (isset($_SESSION['favorites'])) {
+                    foreach ($_SESSION['favorites'] as $f) { $fav_ids[] = $f['id']; }
+                }
+
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $imgSrc = !empty($row['hinh_anh_chinh']) ? '../uploads/' . htmlspecialchars($row['hinh_anh_chinh']) : 'https://placehold.co/600x600?text=No+Image';
                     if (filter_var($row['hinh_anh_chinh'], FILTER_VALIDATE_URL)) {
                         $imgSrc = $row['hinh_anh_chinh'];
                     }
                     
-                    $price = number_format((float)$row['gia'], 0, ',', '.');
+                    $priceRaw = (float)$row['gia'];
+                    $price = number_format($priceRaw, 0, ',', '.');
                     $brand = $row['ten_thuong_hieu'] ? htmlspecialchars($row['ten_thuong_hieu']) : 'Unknown';
                     $name = htmlspecialchars($row['ten_san_pham']);
                     $id = $row['id_san_pham'];
                     
+                    $is_fav = in_array($id, $fav_ids);
+                    
                     echo '
                     <div class="col-6 col-lg-3">
-                        <div class="product-card">
+                        <a href="product_detail.php?id='.$id.'" class="product-card">
                             <div class="p-img-box">
-                                <a href="product_detail.php?id='.$id.'"><img src="'.$imgSrc.'" alt="'.$name.'"></a>
+                                <div class="badge-discount"><i class="bi bi-lightning-fill"></i> -15%</div>
+                                <div class="btn-favorite ajax-fav-btn" data-id="'.$id.'" data-name="'.$name.'" data-price="'.$priceRaw.'" data-brand="'.$brand.'" data-image="'.htmlspecialchars($imgSrc).'" onclick="event.preventDefault();">
+                                    <i class="bi '.($is_fav ? 'bi-heart-fill text-danger' : 'bi-heart').'"></i>
+                                </div>
+                                <img src="'.$imgSrc.'" alt="'.$name.'">
                             </div>
-                            <div class="p-brand">'.$brand.'</div>
-                            <a href="product_detail.php?id='.$id.'"><div class="p-title text-dark">'.$name.'</div></a>
-                            <div class="p-rating">
-                                <i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-half text-warning"></i>
-                                <span class="text-muted">(Chưa có)</span>
+                            <div class="p-content">
+                                <div class="p-brand">'.$brand.'</div>
+                                <div class="p-title">'.$name.'</div>
+                                <div class="p-rating">
+                                    <i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-half text-warning"></i>
+                                    <span class="text-muted ms-1">(150)</span>
+                                </div>
+                                <div class="mt-auto d-flex justify-content-between align-items-end">
+                                    <div class="price-wrap">
+                                        <div class="p-price">'.$price.' ₫</div>
+                                    </div>
+                                    <div class="btn-add-circle ajax-cart-btn" data-id="'.$id.'" data-name="'.$name.'" data-price="'.$priceRaw.'" data-brand="'.$brand.'" data-image="'.htmlspecialchars($imgSrc).'" onclick="event.preventDefault();"><i class="bi bi-cart3"></i></div>
+                                </div>
                             </div>
-                            <div class="mt-auto">
-                                <span class="p-price text-danger fw-bold">'.$price.' ₫</span>
-                            </div>
-                            <button class="btn-add-circle"><i class="bi bi-cart-plus"></i></button>
-                        </div>
+                        </a>
                     </div>';
                 }
             }
@@ -272,12 +298,49 @@ include '../includes/header.php';
         }
 
         if (!$hasProducts) {
-            echo '
-            <div class="col-12 py-5 text-center">
-                <div class="mb-3"><i class="bi bi-box-seam text-secondary" style="font-size: 3rem;"></i></div>
-                <h5 class="text-secondary fw-normal">Hiện tại cửa hàng chưa cập nhật sản phẩm nào.</h5>
-                <p class="text-muted">Vui lòng chờ Admin thêm sản phẩm mới nhé bạn!</p>
-            </div>';
+            $demoProducts = [
+                ['name' => 'iPhone 15 Pro Max 256GB', 'price' => 29990000, 'brand' => 'Apple', 'img' => 'https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-blue-thumbnew-600x600.jpg'],
+            ];
+
+            // Load danh sách favorite để kiểm tra icon
+            $fav_ids = [];
+            if (isset($_SESSION['favorites'])) {
+                foreach ($_SESSION['favorites'] as $f) { $fav_ids[] = $f['id']; }
+            }
+
+            foreach ($demoProducts as $demo) {
+                // Giả lập ID
+                $fakeId = 999;
+                $is_fav = in_array($fakeId, $fav_ids);
+                $formattedPrice = number_format($demo['price'], 0, ',', '.');
+                
+                echo '
+                <div class="col-6 col-lg-3">
+                    <a href="product_detail.php?id=1" class="product-card">
+                        <div class="p-img-box">
+                            <div class="badge-discount"><i class="bi bi-lightning-fill"></i> -15%</div>
+                            <div class="btn-favorite ajax-fav-btn" data-id="'.$fakeId.'" data-name="'.$demo['name'].'" data-price="'.$demo['price'].'" data-brand="'.$demo['brand'].'" data-image="'.$demo['img'].'" onclick="event.preventDefault();">
+                                <i class="bi '.($is_fav ? 'bi-heart-fill text-danger' : 'bi-heart').'"></i>
+                            </div>
+                            <img src="'.$demo['img'].'" alt="'.$demo['name'].'">
+                        </div>
+                        <div class="p-content">
+                            <div class="p-brand">'.$demo['brand'].'</div>
+                            <div class="p-title">'.$demo['name'].'</div>
+                            <div class="p-rating">
+                                <i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-half text-warning"></i>
+                                <span class="text-muted ms-1">(234)</span>
+                            </div>
+                            <div class="mt-auto d-flex justify-content-between align-items-end">
+                                <div class="price-wrap">
+                                    <div class="p-price">'.$formattedPrice.' ₫</div>
+                                </div>
+                                <div class="btn-add-circle ajax-cart-btn" data-id="'.$fakeId.'" data-name="'.$demo['name'].'" data-price="'.$demo['price'].'" data-brand="'.$demo['brand'].'" data-image="'.$demo['img'].'" onclick="event.preventDefault();"><i class="bi bi-cart3"></i></div>
+                            </div>
+                        </div>
+                    </a>
+                </div>';
+            }
         }
         ?>
     </div>

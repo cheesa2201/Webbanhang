@@ -4,9 +4,13 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 ?>
 <?php
-// Kiểm tra xem giỏ hàng đã được tạo trong Session chưa
-// Nếu có thì đếm số lượng, nếu chưa thì gán bằng 0
-$cart_count = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
+// Tính tổng số lượng sản phẩm trong giỏ hàng
+$cart_count = 0;
+if (isset($_SESSION['cart'])) {
+    foreach ($_SESSION['cart'] as $c_item) {
+        $cart_count += $c_item['qty'];
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -18,7 +22,7 @@ $cart_count = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="../assets/css/style.css" rel="stylesheet">
+    <link href="../assets/css/style.css?v=<?= time() ?>" rel="stylesheet">
 </head>
 <body>
 
@@ -77,13 +81,11 @@ $cart_count = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
                 </form>
                 
                 <div class="d-flex align-items-center gap-3">
-                    <a href="#" class="text-dark fs-5 text-decoration-none d-none d-sm-block"><i class="bi bi-heart"></i></a>
+                    <a href="favorites.php" class="text-dark fs-5 text-decoration-none d-none d-sm-block"><i class="bi bi-heart"></i></a>
                     
                     <a href="cart.php" class="text-dark fs-5 position-relative text-decoration-none me-2">
                         <i class="bi bi-cart3"></i>
-                        <?php if($cart_count > 0): ?>
-                        <span class="position-absolute translate-middle badge rounded-pill bg-danger" style="top: 5px; right: -20px; font-size: 10px;"><?php echo $cart_count; ?></span>
-                        <?php endif; ?>
+                        <span id="cart-badge" class="position-absolute translate-middle badge rounded-pill bg-danger" style="top: 5px; right: -20px; font-size: 10px; <?= $cart_count == 0 ? 'display: none;' : '' ?>"><?php echo $cart_count; ?></span>
                     </a>
                     
                     <?php if(isset($_SESSION['user_id'])): ?>
