@@ -132,35 +132,20 @@ class Cart
                 throw new Exception("ID sản phẩm hoặc số lượng không hợp lệ");
             }
 
-            // Lấy giá, số lượng tồn và trạng thái sản phẩm từ database
-            $stmt = $this->conn->prepare(
-                "SELECT gia, so_luong_ton, trang_thai FROM san_pham WHERE id_san_pham = ?"
-            );
-            $stmt->bind_param("i", $id_san_pham);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            if ($result->num_rows === 0) {
-                throw new Exception("Sản phẩm không tồn tại");
-            }
-
-            $row = $result->fetch_assoc();
-            $stmt->close();
-
-            // Kiểm tra trạng thái sản phẩm
-            $trang_thai = $row['trang_thai'];
-            if ($trang_thai !== 'dang_ban') {
-                throw new Exception("Sản phẩm không có sẵn để bán (Trạng thái: {$trang_thai})");
-            }
-
-            // Kiểm tra số lượng tồn
-            $so_luong_ton = (int)$row['so_luong_ton'];
-            if ($so_luong_ton < $so_luong) {
-                throw new Exception("Số lượng sản phẩm không đủ. Còn lại: {$so_luong_ton}");
-            }
-
+            // Lấy giá sản phẩm từ database nếu không cung cấp
             if ($don_gia === null) {
+                $stmt = $this->conn->prepare("SELECT gia FROM san_pham WHERE id_san_pham = ?");
+                $stmt->bind_param("i", $id_san_pham);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows === 0) {
+                    throw new Exception("Sản phẩm không tồn tại");
+                }
+
+                $row = $result->fetch_assoc();
                 $don_gia = (float)$row['gia'];
+                $stmt->close();
             }
 
             // Kiểm tra sản phẩm đã có trong giỏ không
@@ -188,7 +173,7 @@ class Cart
                 "INSERT INTO chi_tiet_gio_hang (id_gio_hang, id_san_pham, so_luong, don_gia) 
                  VALUES (?, ?, ?, ?)"
             );
-            $stmt->bind_param("iiid", $this->id_gio_hang, $id_san_pham, $so_luong, $don_gia);
+            $stmt->bind_param("iid", $this->id_gio_hang, $id_san_pham, $so_luong, $don_gia);
 
             if (!$stmt->execute()) {
                 throw new Exception("Lỗi khi thêm sản phẩm: " . $stmt->error);
@@ -232,10 +217,8 @@ class Cart
 
             // Kiểm tra sản phẩm có tồn tại trong giỏ
             $stmt = $this->conn->prepare(
-                "SELECT ctgh.don_gia, sp.so_luong_ton, sp.trang_thai 
-                 FROM chi_tiet_gio_hang ctgh
-                 JOIN san_pham sp ON ctgh.id_san_pham = sp.id_san_pham
-                 WHERE ctgh.id_gio_hang = ? AND ctgh.id_san_pham = ?"
+                "SELECT don_gia FROM chi_tiet_gio_hang 
+                 WHERE id_gio_hang = ? AND id_san_pham = ?"
             );
             $stmt->bind_param("ii", $this->id_gio_hang, $id_san_pham);
             $stmt->execute();
@@ -245,24 +228,12 @@ class Cart
                 throw new Exception("Sản phẩm không có trong giỏ hàng");
             }
 
-            $row = $result->fetch_assoc();
-            $stmt->close();
-
-            // Kiểm tra trạng thái sản phẩm khi cập nhật
-            $trang_thai = $row['trang_thai'];
-            if ($trang_thai !== 'dang_ban') {
-                throw new Exception("Sản phẩm không có sẵn để bán (Trạng thái: {$trang_thai})");
-            }
-
-            // Kiểm tra số lượng tồn khi cập nhật
-            $so_luong_ton = (int)$row['so_luong_ton'];
-            if ($so_luong_ton < $so_luong) {
-                throw new Exception("Số lượng sản phẩm không đủ. Còn lại: {$so_luong_ton}");
-            }
-
             if ($don_gia === null) {
-                $don_gia = (float)$row['don_gia'];
+                $row = $result->fetch_assoc();
+                $don_gia = $row['don_gia'];
             }
+
+            $stmt->close();
 
             // Cập nhật số lượng và đơn giá
             if ($don_gia !== null) {
