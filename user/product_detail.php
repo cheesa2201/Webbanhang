@@ -128,18 +128,18 @@ include '../includes/header.php';
                     
                     <!-- Buttons -->
                     <div class="d-flex gap-3 mb-4">
-                        <button class="pd-btn-buy flex-grow-1" <?= $product['so_luong_ton'] <= 0 ? 'disabled' : '' ?> onclick="window.location.href='cart.php'">Mua ngay</button>
-                        <button class="pd-btn-cart flex-grow-1 ajax-cart-btn" data-id="<?= $id ?>" data-name="<?= htmlspecialchars($product['ten_san_pham']) ?>" data-price="<?= $row['gia'] ?>" data-brand="<?= htmlspecialchars($product['ten_thuong_hieu']) ?>" data-image="<?= htmlspecialchars($mainImg) ?>" <?= $product['so_luong_ton'] <= 0 ? 'disabled' : '' ?>>
+                        <button class="pd-btn-buy flex-grow-1 ajax-buy-now-btn" data-id="<?= $productId ?>" data-name="<?= htmlspecialchars($product['ten_san_pham']) ?>" data-price="<?= $product['gia'] ?>" data-brand="<?= htmlspecialchars($product['ten_thuong_hieu']) ?>" data-image="<?= htmlspecialchars($mainImg) ?>" <?= $product['so_luong_ton'] <= 0 ? 'disabled' : '' ?>>Mua ngay</button>
+                        <button class="pd-btn-cart flex-grow-1 ajax-cart-btn" data-id="<?= $productId ?>" data-name="<?= htmlspecialchars($product['ten_san_pham']) ?>" data-price="<?= $product['gia'] ?>" data-brand="<?= htmlspecialchars($product['ten_thuong_hieu']) ?>" data-image="<?= htmlspecialchars($mainImg) ?>" <?= $product['so_luong_ton'] <= 0 ? 'disabled' : '' ?>>
                             <i class="bi bi-cart3 me-1"></i> Thêm vào giỏ
                         </button>
                         
                         <?php
                             $is_fav = false;
                             if (isset($_SESSION['favorites'])) {
-                                foreach ($_SESSION['favorites'] as $f) { if ($f['id'] == $id) { $is_fav = true; break; } }
+                                foreach ($_SESSION['favorites'] as $f) { if ($f['id'] == $productId) { $is_fav = true; break; } }
                             }
                         ?>
-                        <button class="pd-btn-heart flex-shrink-0 ajax-fav-btn" data-id="<?= $id ?>" data-name="<?= htmlspecialchars($product['ten_san_pham']) ?>" data-price="<?= $row['gia'] ?>" data-brand="<?= htmlspecialchars($product['ten_thuong_hieu']) ?>" data-image="<?= htmlspecialchars($mainImg) ?>">
+                        <button class="pd-btn-heart flex-shrink-0 ajax-fav-btn" data-id="<?= $productId ?>" data-name="<?= htmlspecialchars($product['ten_san_pham']) ?>" data-price="<?= $product['gia'] ?>" data-brand="<?= htmlspecialchars($product['ten_thuong_hieu']) ?>" data-image="<?= htmlspecialchars($mainImg) ?>">
                             <i class="bi <?= $is_fav ? 'bi-heart-fill text-danger' : 'bi-heart' ?>"></i>
                         </button>
                     </div>
@@ -267,7 +267,6 @@ include '../includes/header.php';
                     
                     <!-- Buttons -->
                     <div class="d-flex gap-3 mb-4">
-                        <button class="pd-btn-buy flex-grow-1" onclick="window.location.href='cart.php'">Mua ngay</button>
                         <?php
                             $fake_id = 999;
                             $demo_name = 'iPhone 15 Pro Max';
@@ -280,6 +279,7 @@ include '../includes/header.php';
                                 foreach ($_SESSION['favorites'] as $f) { if ($f['id'] == $fake_id) { $is_fav_demo = true; break; } }
                             }
                         ?>
+                        <button class="pd-btn-buy flex-grow-1 ajax-buy-now-btn" data-id="<?= $fake_id ?>" data-name="<?= $demo_name ?>" data-price="<?= $demo_price ?>" data-brand="<?= $demo_brand ?>" data-image="<?= $demo_img ?>">Mua ngay</button>
                         <button class="pd-btn-cart flex-grow-1 ajax-cart-btn" data-id="<?= $fake_id ?>" data-name="<?= $demo_name ?>" data-price="<?= $demo_price ?>" data-brand="<?= $demo_brand ?>" data-image="<?= $demo_img ?>">
                             <i class="bi bi-cart3 me-1"></i> Thêm vào giỏ
                         </button>
@@ -408,6 +408,47 @@ include '../includes/header.php';
             if(target) {
                 document.querySelector(target).classList.add('show', 'active');
             }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        function handleCartAction(btn, redirectUrl) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                let qty = 1;
+                const closestContainer = this.closest('.col-md-7');
+                if (closestContainer) {
+                    const qtyInput = closestContainer.querySelector('.qty-input');
+                    if (qtyInput) qty = parseInt(qtyInput.value) || 1;
+                }
+                
+                const formData = new FormData();
+                formData.append('action', 'add_cart');
+                formData.append('id', this.dataset.id);
+                formData.append('name', this.dataset.name);
+                formData.append('price', this.dataset.price);
+                formData.append('brand', this.dataset.brand);
+                formData.append('image', this.dataset.image);
+                formData.append('qty', qty);
+
+                fetch('ajax_cart_fav.php', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        window.location.href = redirectUrl;
+                    } else {
+                        alert(data.message || 'Đã có lỗi xảy ra');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Đã có lỗi xảy ra!');
+                });
+            });
+        }
+
+        document.querySelectorAll('.ajax-buy-now-btn').forEach(btn => {
+            handleCartAction(btn, 'checkout.php');
         });
     });
 </script>

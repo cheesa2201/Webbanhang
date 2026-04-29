@@ -25,7 +25,21 @@ body {
   font-family: "Inter", sans-serif;
   color: var(--text-main);
   background-color: var(--bs-body-bg);
+}
+
+body > *:not(header):not(.dropdown-menu) {
   overflow-x: hidden;
+}
+
+/* Ẩn scrollbar nhưng vẫn scroll được */
+body {
+  overflow-x: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+body::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 a {
@@ -64,24 +78,30 @@ a {
   color: var(--primary) !important;
 }
 
-/* Dropdown on hover for Desktop */
-@media (min-width: 992px) {
-  .dropdown:hover .dropdown-menu {
-    display: block;
-    margin-top: 0;
+/* Dropdown on hover */
+@media (min-width: 576px) {
+  .nav-dropdown:hover .dropdown-menu {
+    display: block !important;
     animation: fadeIn 0.2s ease-out;
   }
 
-  /* Cầu nối vô hình giúp chống mất hover khi chuột di chuyển qua khoảng trống */
-  .dropdown .dropdown-menu::before {
+  /* Cầu nối vô hình giúp chuột di chuyển từ trigger xuống menu không bị mất hover */
+  .nav-dropdown .dropdown-menu::before {
     content: "";
     position: absolute;
-    top: -15px;
+    top: -20px;
     left: 0;
     right: 0;
-    height: 15px;
+    height: 20px;
     background: transparent;
   }
+}
+
+/* Fix: Bootstrap chỉ căn dropdown-menu-end khi có [data-bs-popper] (do JS thêm).
+   Vì dùng hover thuần CSS, cần force right-align thủ công. */
+.nav-dropdown .dropdown-menu-end {
+  right: 0 !important;
+  left: auto !important;
 }
 
 @keyframes fadeIn {

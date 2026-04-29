@@ -3,22 +3,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Khởi tạo một dữ liệu mồi trong Session ĐỂ DEMO một lần duy nhất.
-// Sau này khi có chức năng Thêm giỏ hàng từ product_detail, bạn có thể xoá khối này.
-if (!isset($_SESSION['cart_initialized_demo'])) {
-    $_SESSION['cart'] = [
-        [
-            'id' => 1,
-            'name' => 'Samsung Galaxy Buds3 Pro',
-            'brand' => 'Samsung',
-            'price' => 4990000,
-            'qty' => 1,
-            'image' => 'https://cdn2.cellphones.com.vn/insecure/rs:fill:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/s/a/samsung-galaxy-buds-3-pro_2_.jpg'
-        ]
-    ];
-    $_SESSION['cart_initialized_demo'] = true;
-}
-
 // Xử lý Xoá sản phẩm
 if (isset($_GET['action']) && $_GET['action'] == 'remove' && isset($_GET['id'])) {
     $remove_id = $_GET['id'];
@@ -151,9 +135,15 @@ include '../includes/header.php';
                             Đã bao gồm VAT
                         </div>
                         
-                        <button class="btn btn-primary w-100 rounded-pill fw-medium d-flex justify-content-center align-items-center gap-2 mb-4" style="height: 52px; font-size: 1.05rem; background-color: #2563eb; border:none;">
-                            Tiến hành thanh toán <i class="bi bi-arrow-right"></i>
-                        </button>
+                        <?php if(isset($_SESSION['id_nguoi_dung'])): ?>
+                            <a href="checkout.php" class="btn btn-primary w-100 rounded-pill fw-medium d-flex justify-content-center align-items-center gap-2 mb-4 text-decoration-none text-white" style="height: 52px; font-size: 1.05rem; background-color: #2563eb; border:none;">
+                                Tiến hành thanh toán <i class="bi bi-arrow-right"></i>
+                            </a>
+                        <?php else: ?>
+                            <a href="login.php" class="btn btn-primary w-100 rounded-pill fw-medium d-flex justify-content-center align-items-center gap-2 mb-4 text-decoration-none text-white" style="height: 52px; font-size: 1.05rem; background-color: #2563eb; border:none;">
+                                Đăng nhập để thanh toán <i class="bi bi-arrow-right"></i>
+                            </a>
+                        <?php endif; ?>
                         
                         <div class="d-flex justify-content-between px-2">
                             <div class="d-flex align-items-center gap-1 text-muted" style="font-size: 0.75rem;">

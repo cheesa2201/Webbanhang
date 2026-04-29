@@ -44,11 +44,13 @@ class AuthController
         ]);
 
         // ✅ QUAN TRỌNG: redirect
-        redirect('index.php');
+        redirect('user/shop.php');
     }
 
     public function logout() 
     {
-        logout('user/login.php');
+        $_SESSION = [];
+        session_destroy();
+        redirect('user/shop.php');
     }
 }

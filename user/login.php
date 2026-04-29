@@ -6,7 +6,7 @@ require_once __DIR__ . '/../controllers/AuthController.php';
 
 // Nếu đã đăng nhập thì về trang chủ
 if (isLoggedIn()) {
-    redirect('index.php');
+    redirect('user/shop.php');
 }
 
 if (is_post()) {
@@ -27,10 +27,10 @@ require_once __DIR__ . '/../includes/auth_header.php';
     <div class="demo-box p-3 mb-4 fs-sm">
         <p class="fw-semibold mb-1">Tài khoản demo:</p>
         <div class="d-flex align-items-center gap-1 mb-1">
-            <span><i class="bi bi-person-fill"></i> Khách hàng: an@gmail.com / 123456</span>
+            <span><i class="bi bi-person-fill"></i> Khách hàng: an.le@gmail.com / 123456</span>
         </div>
         <div class="d-flex align-items-center gap-1">
-            <span><i class="bi bi-key-fill text-warning"></i> Admin: admin@techshop.vn / admin123</span>
+            <span><i class="bi bi-key-fill text-warning"></i> Admin: admin@webbanhang.com / 123456</span>
         </div>
     </div>
 

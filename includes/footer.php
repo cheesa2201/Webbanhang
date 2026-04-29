@@ -110,8 +110,11 @@
                     if(data.status === 'success') {
                         showToast(data.message, true);
                         // Cập nhật số đếm giỏ hàng trên Header nếu có thẻ span.badge
-                        const cartBadge = document.querySelector('.header-icon-badge.bg-danger');
-                        if(cartBadge) cartBadge.innerText = data.cart_count;
+                        const cartBadge = document.getElementById('cart-badge');
+                        if(cartBadge) {
+                            cartBadge.innerText = data.cart_count;
+                            cartBadge.style.display = 'inline-block';
+                        }
                     } else {
                         showToast(data.message, false);
                     }

@@ -46,7 +46,7 @@ if (isset($_SESSION['cart'])) {
                 <nav class="d-none d-lg-flex align-items-center gap-4">
                     <a href="shop.php" class="text-dark text-decoration-none nav-link-custom">Trang chủ</a>
                     
-    <div class="dropdown">
+    <div class="dropdown nav-dropdown">
         <a href="#" class="text-decoration-none nav-link-custom dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Danh mục
         </a>
@@ -88,10 +88,28 @@ if (isset($_SESSION['cart'])) {
                         <span id="cart-badge" class="position-absolute translate-middle badge rounded-pill bg-danger" style="top: 5px; right: -20px; font-size: 10px; <?= $cart_count == 0 ? 'display: none;' : '' ?>"><?php echo $cart_count; ?></span>
                     </a>
                     
-                    <?php if(isset($_SESSION['user_id'])): ?>
-                        <a href="index.php" class="btn btn-primary rounded-pill d-none d-sm-block px-3 fw-medium">
-                            <i class="bi bi-person-fill me-1"></i> Tài khoản
-                        </a>
+                    <?php if(isset($_SESSION['id_nguoi_dung'])): ?>
+                        <?php 
+                            $firstLetter = mb_substr($_SESSION['ho_ten'] ?? 'U', 0, 1, 'UTF-8');
+                        ?>
+                        <div class="dropdown nav-dropdown d-none d-sm-block">
+                            <a href="#" class="d-flex align-items-center text-decoration-none">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                                    <?= htmlspecialchars(mb_strtoupper($firstLetter, 'UTF-8')) ?>
+                                </div>
+                                <i class="bi bi-chevron-down text-dark ms-1" style="font-size: 0.75rem;"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow p-2 rounded-4" style="min-width: 220px; font-size: 15px;">
+                                <li class="px-3 pt-2 pb-1">
+                                    <div class="fw-semibold text-dark" style="font-size: 14px;"><?= htmlspecialchars($_SESSION['ho_ten'] ?? 'Người dùng') ?></div>
+                                </li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li><a class="dropdown-item py-2 px-3 mb-1 rounded-3 text-dark fw-medium d-flex align-items-center" href="my_account.php"><span class="me-3 text-center" style="width:24px;font-size:1.2rem;"><i class="bi bi-person text-primary"></i></span>Tài khoản</a></li>
+                                <li><a class="dropdown-item py-2 px-3 mb-1 rounded-3 text-dark fw-medium d-flex align-items-center" href="my_orders.php"><span class="me-3 text-center" style="width:24px;font-size:1.2rem;"><i class="bi bi-box-seam text-primary"></i></span>Đơn hàng</a></li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li><a class="dropdown-item py-2 px-3 rounded-3 text-danger fw-medium d-flex align-items-center" href="logout.php"><span class="me-3 text-center" style="width:24px;font-size:1.2rem;"><i class="bi bi-box-arrow-right"></i></span>Đăng xuất</a></li>
+                            </ul>
+                        </div>
                     <?php else: ?>
                         <a href="login.php" class="btn btn-primary rounded-pill d-none d-sm-block px-3 fw-medium">
                             <i class="bi bi-person me-1"></i> Đăng nhập
