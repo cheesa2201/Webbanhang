@@ -70,22 +70,42 @@ class Product
         return $product ?: null;
     }
 
-    public function search(string $keyword, string $sort = 'newest'): array
-    {
-        $sql = "SELECT * FROM (" . $this->baseSelect() . ") p
-                WHERE p.trang_thai = 'dang_ban'
-                  AND (
-                    p.ten_san_pham LIKE :kw
-                    OR p.ma_san_pham LIKE :kw
-                    OR p.mo_ta_ngan LIKE :kw
-                    OR p.ten_danh_muc LIKE :kw
-                    OR p.ten_thuong_hieu LIKE :kw
-                  )" . $this->orderBy($sort);
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':kw' => '%' . $keyword . '%']);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+public function search(string $keyword = '', string $sort = 'newest'): array
+{
+    $sql = "SELECT * FROM (" . $this->baseSelect() . ") p
+            WHERE p.trang_thai = 'dang_ban'";
+
+    $params = [];
+
+    if ($keyword !== '') {
+        $sql .= " AND (
+            p.ten_san_pham LIKE ?
+            OR p.ma_san_pham LIKE ?
+            OR p.mo_ta_ngan LIKE ?
+            OR p.mo_ta_chi_tiet LIKE ?
+            OR p.ten_danh_muc LIKE ?
+            OR p.ten_thuong_hieu LIKE ?
+        )";
+
+        $like = '%' . $keyword . '%';
+
+        $params = [
+            $like,
+            $like,
+            $like,
+            $like,
+            $like,
+            $like
+        ];
     }
 
+    $sql .= $this->orderBy($sort);
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute($params);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
     public function getByCategory(int $categoryId, string $sort = 'newest'): array
     {
         $sql = "SELECT * FROM (" . $this->baseSelect() . ") p
