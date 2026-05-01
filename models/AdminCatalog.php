@@ -1,0 +1,14 @@
+<?php
+declare(strict_types=1);
+class AdminCatalog{
+    public function __construct(private PDO $pdo){}
+    public function categories():array{return $this->pdo->query("SELECT * FROM danh_muc ORDER BY id_danh_muc DESC")->fetchAll();}
+    public function brands():array{return $this->pdo->query("SELECT * FROM thuong_hieu ORDER BY id_thuong_hieu DESC")->fetchAll();}
+    public function products():array{return $this->pdo->query("SELECT sp.*,dm.ten_danh_muc,th.ten_thuong_hieu FROM san_pham sp JOIN danh_muc dm ON dm.id_danh_muc=sp.id_danh_muc JOIN thuong_hieu th ON th.id_thuong_hieu=sp.id_thuong_hieu ORDER BY sp.id_san_pham DESC")->fetchAll();}
+    public function findProduct(int $id):?array{$s=$this->pdo->prepare("SELECT * FROM san_pham WHERE id_san_pham=:id");$s->execute([':id'=>$id]);$p=$s->fetch();return $p?:null;}
+    public function saveProduct(array $d,int $id=0):bool{$params=[':c'=>$d['id_danh_muc'],':b'=>$d['id_thuong_hieu'],':n'=>$d['ten_san_pham'],':sku'=>$d['ma_san_pham'],':g'=>$d['gia'],':img'=>$d['hinh_anh_chinh']?:'assets/images/no-image.jpg',':mn'=>$d['mo_ta_ngan']??'',':mt'=>$d['mo_ta_chi_tiet']??'',':sl'=>$d['so_luong_ton'],':tt'=>$d['trang_thai']??'dang_ban'];if($id){$params[':id']=$id;$s=$this->pdo->prepare("UPDATE san_pham SET id_danh_muc=:c,id_thuong_hieu=:b,ten_san_pham=:n,ma_san_pham=:sku,gia=:g,hinh_anh_chinh=:img,mo_ta_ngan=:mn,mo_ta_chi_tiet=:mt,so_luong_ton=:sl,trang_thai=:tt WHERE id_san_pham=:id");}else{$s=$this->pdo->prepare("INSERT INTO san_pham(id_danh_muc,id_thuong_hieu,ten_san_pham,ma_san_pham,gia,hinh_anh_chinh,mo_ta_ngan,mo_ta_chi_tiet,so_luong_ton,trang_thai) VALUES(:c,:b,:n,:sku,:g,:img,:mn,:mt,:sl,:tt)");}return $s->execute($params);}
+    public function saveCategory(array $d,int $id=0):bool{if($id){$s=$this->pdo->prepare("UPDATE danh_muc SET ten_danh_muc=:n,trang_thai=:t WHERE id_danh_muc=:id");return $s->execute([':n'=>$d['ten_danh_muc'],':t'=>$d['trang_thai'],':id'=>$id]);}$s=$this->pdo->prepare("INSERT INTO danh_muc(ten_danh_muc,trang_thai) VALUES(:n,:t)");return $s->execute([':n'=>$d['ten_danh_muc'],':t'=>$d['trang_thai']??'hien']);}
+    public function findCategory(int $id):?array{$s=$this->pdo->prepare("SELECT * FROM danh_muc WHERE id_danh_muc=:id");$s->execute([':id'=>$id]);$r=$s->fetch();return $r?:null;}
+    public function saveBrand(array $d,int $id=0):bool{if($id){$s=$this->pdo->prepare("UPDATE thuong_hieu SET ten_thuong_hieu=:n,trang_thai=:t WHERE id_thuong_hieu=:id");return $s->execute([':n'=>$d['ten_thuong_hieu'],':t'=>$d['trang_thai'],':id'=>$id]);}$s=$this->pdo->prepare("INSERT INTO thuong_hieu(ten_thuong_hieu,trang_thai) VALUES(:n,:t)");return $s->execute([':n'=>$d['ten_thuong_hieu'],':t'=>$d['trang_thai']??'hien']);}
+    public function findBrand(int $id):?array{$s=$this->pdo->prepare("SELECT * FROM thuong_hieu WHERE id_thuong_hieu=:id");$s->execute([':id'=>$id]);$r=$s->fetch();return $r?:null;}
+}
